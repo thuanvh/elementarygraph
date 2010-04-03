@@ -38,6 +38,7 @@ public class GraphDisplayMx extends JScrollPane {
   public Vector<Vector<Node>> graph;
   public mxGraphView graphView;
   public mxGraph graphMx;
+  public mxGraphComponent graphcom;
   public Object parent;
   //
 
@@ -66,8 +67,8 @@ public class GraphDisplayMx extends JScrollPane {
     }
     displayGraph();
 
-    mxGraphComponent graphcom = new mxGraphComponent(graphMx);
-    this.add(graphcom);
+    graphcom = new mxGraphComponent(graphMx);
+    //this.add(graphcom);
 
 
   }
@@ -79,8 +80,8 @@ public class GraphDisplayMx extends JScrollPane {
       int i = 0;
       int j = 0;
       mxCell[] nodeViewList = new mxCell[nodeList.size()];
-      for (i = 0; i < nodeList.size(); i++) {        
-        mxCell cell = (mxCell)graphMx.insertVertex(parent, nodeList.get(i).getTitle(), nodeList.get(i), 50, 20, 80,30);
+      for (i = 0; i < nodeList.size(); i++) {
+        mxCell cell = (mxCell) graphMx.insertVertex(parent, nodeList.get(i).getTitle(), nodeList.get(i), 50, 20, 80, 30);
         cell.setStyle("ROUNDED;strokeColor=red;fillColor=green;width=40;height=50");
         nodeViewList[i] = (mxCell) cell;
       }
@@ -117,8 +118,8 @@ public class GraphDisplayMx extends JScrollPane {
         }
       }
 
-     mxCircleLayout layout=new mxCircleLayout(graphMx);
-     layout.execute(parent);
+      mxCircleLayout layout = new mxCircleLayout(graphMx);
+      layout.execute(parent);
     } finally {
       graphMx.getModel().endUpdate();
     }
@@ -214,7 +215,7 @@ public class GraphDisplayMx extends JScrollPane {
       recentEdge.setStyle("fillColor=yellow");
     }
 
-    Object[] edges = graphMx.getChildVertices(this);//graphView.getGraphLayoutCache().getCells(false, false, false, true);
+    Object[] edges = graphMx.getEdges(parent);
     for (int k = 0; k < edges.length; k++) {
       mxCell e = (mxCell) edges[k];
       mxCell source = (mxCell) e.getSource();
@@ -232,7 +233,7 @@ public class GraphDisplayMx extends JScrollPane {
 
   public void focusNode(Node node) {
     graphMx.getModel().beginUpdate();
-    Object[] vertices = graphMx.getChildVertices(this);
+    Object[] vertices = graphMx.getChildVertices(parent);
     Color color = Color.orange;
     Color oldcolor = Color.GREEN;
     if (recentCell != null) {
@@ -244,19 +245,13 @@ public class GraphDisplayMx extends JScrollPane {
       Node nodeAttached = (Node) vertex.getValue();
       if (nodeAttached != null) {
         if (nodeAttached.compareTo(node) == 0) {
-          //nodeAttached.setFindingState(findingProcess);
-          recentCell.setStyle("fillColor=green");
-//          GraphConstants.setBackground(vertex.getAttributes(), color);
-//          //GraphConstants.set
-//          graphView.getGraphLayoutCache().editCell(vertex, vertex.getAttributes());
-//          graphView.setSelectionCell(vertex);
-//          graphView.refresh();
-          return;
+
+          vertex.setStyle("fillColor=green");
+          recentCell=vertex;
+          break;
         }
       }
     }
     graphMx.getModel().endUpdate();
   }
-//  public void valueChanged(GraphSelectionEvent e) {
-//  }
 }
