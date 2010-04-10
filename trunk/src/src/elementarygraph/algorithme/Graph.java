@@ -24,44 +24,41 @@ public class Graph {
 
     public Graph() {
 
-        for (int i = 0;i <= 6; i++) {
-            data.add(new Vector());
-        }
-
-        data.elementAt(0).add(new Node("1", 1));
-        data.elementAt(0).add(new Node("2", 2));
-
-        
-        data.elementAt(1).add(new Node("1", 1));
-        data.elementAt(1).add(new Node("3", 3));
-
-        data.elementAt(2).add(new Node("2", 2));
-        data.elementAt(2).add(new Node("1", 1));
-        data.elementAt(2).add(new Node("3", 3));
-        data.elementAt(2).add(new Node("4", 4));
-        data.elementAt(2).add(new Node("5", 5));
-
-        data.elementAt(3).add(new Node("3", 3));
-        data.elementAt(3).add(new Node("1", 1));
-        data.elementAt(3).add(new Node("2", 2));
-        data.elementAt(3).add(new Node("5", 5));
-
-        data.elementAt(4).add(new Node("4", 4));
-        data.elementAt(4).add(new Node("2", 2));
-        data.elementAt(4).add(new Node("5", 5));
-        data.elementAt(4).add(new Node("6", 6));
-
-        data.elementAt(5).add(new Node("5", 5));
-        data.elementAt(5).add(new Node("2", 2));
-        data.elementAt(5).add(new Node("3", 3));
-        data.elementAt(5).add(new Node("4", 4));
-        data.elementAt(5).add(new Node("6", 6));
-
-        data.elementAt(6).add(new Node("6", 6));
-        data.elementAt(6).add(new Node("4", 4));
-        data.elementAt(6).add(new Node("5", 5));
-
-        this.setSize(data.size() - 1);//Khong tinh phan tu dau tien, index = 0
+//        for (int i = 0;i <= 6; i++) {
+//            data.add(new Vector());
+//        }
+//
+//        data.elementAt(1).add(new Node("1", 1));
+//        data.elementAt(1).add(new Node("2", 2));
+//        data.elementAt(1).add(new Node("3", 3));
+//
+//        data.elementAt(2).add(new Node("2", 2));
+//        data.elementAt(2).add(new Node("1", 1));
+//        data.elementAt(2).add(new Node("3", 3));
+//        data.elementAt(2).add(new Node("4", 4));
+//        data.elementAt(2).add(new Node("5", 5));
+//
+//        data.elementAt(3).add(new Node("3", 3));
+//        data.elementAt(3).add(new Node("1", 1));
+//        data.elementAt(3).add(new Node("2", 2));
+//        data.elementAt(3).add(new Node("5", 5));
+//
+//        data.elementAt(4).add(new Node("4", 4));
+//        data.elementAt(4).add(new Node("2", 2));
+//        data.elementAt(4).add(new Node("5", 5));
+//        data.elementAt(4).add(new Node("6", 6));
+//
+//        data.elementAt(5).add(new Node("5", 5));
+//        data.elementAt(5).add(new Node("2", 2));
+//        data.elementAt(5).add(new Node("3", 3));
+//        data.elementAt(5).add(new Node("4", 4));
+//        data.elementAt(5).add(new Node("6", 6));
+//
+//        data.elementAt(6).add(new Node("6", 6));
+//        data.elementAt(6).add(new Node("4", 4));
+//        data.elementAt(6).add(new Node("5", 5));
+//
+//        this.setSize(data.size() - 1);//Khong tinh phan tu dau tien, index = 0
     }
 
     public Vector<Node> addNode(Node node1, Node node2) {
@@ -112,6 +109,8 @@ public class Graph {
 
         while ( queue.isEmpty() == false ) {
             Node node1 = queue.poll(), node2;
+            System.out.println("index:"+node1.getIndex());
+
             Vector<Node> listNode = data.elementAt(node1.getIndex());
             for (int i = 1;i < listNode.size(); i++) {
                 node2 = data.elementAt( listNode.elementAt(i).getIndex() ).firstElement();
