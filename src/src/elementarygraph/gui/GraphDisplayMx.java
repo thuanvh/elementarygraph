@@ -17,6 +17,7 @@ import com.mxgraph.model.*;
 import com.mxgraph.view.*;
 import com.mxgraph.layout.*;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -47,10 +48,7 @@ public class GraphDisplayMx extends JScrollPane {
     graphMx = new mxGraph();
     graphView = new mxGraphView(graphMx);
     parent = graphMx.getDefaultParent();
-//    graphView.setEditable(false);
-//    graphView.setConnectable(false);
-//    graphView.setDisconnectable(false);
-    //graphView.set
+
 
     // Init graph model
     this.graph = graph;
@@ -58,10 +56,10 @@ public class GraphDisplayMx extends JScrollPane {
     int i = 0, j = 0;
     for (i = 0; i < graph.size(); i++) {
       for (j = 0; j < graph.get(i).size(); j++) {
-        System.out.println(graph.get(i).get(j));
+
         if (!nodeList.contains(graph.get(i).get(j))) {
           nodeList.add(graph.get(i).get(j));
-          System.out.print(graph.get(i).get(j));
+
         }
       }
     }
@@ -69,8 +67,37 @@ public class GraphDisplayMx extends JScrollPane {
 
     graphcom = new mxGraphComponent(graphMx);
     //this.add(graphcom);
+/*
+    //      Object parent = graph.getDefaultParent();
+    int numberOfNodes = graphMx.getModel().getChildCount(parent);
+    Object[] cells = new Object[1];
 
+    for ( i = 0; i < numberOfNodes; i++)
+    { // For all cells
+    cells[0] = graphMx.getModel().getChildAt(parent, i); // Choose cell
 
+    graphMx.getModel().beginUpdate();
+    try
+    {
+    graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR,
+    "red", cells); // Change fill color of current cell
+    }
+    finally
+    {
+    graphMx.getModel().endUpdate();
+    }
+
+    try
+    {
+    Thread.sleep(1000); // Pause for a second
+    }
+    catch (InterruptedException e1)
+    {
+    e1.printStackTrace();
+    }
+    } // end for loop
+     *
+     */
   }
 
   private void displayGraph() {
@@ -157,63 +184,30 @@ public class GraphDisplayMx extends JScrollPane {
     JFrame frame = new JFrame();
     //frame.getContentPane().add(applet);
     JPanel pane = new JPanel();
-    //pane.add(applet);
-    //pane.setSize(500,500);
-    /*mxGraph graph2 = new mxGraph();
-    Object parent = graph2.getDefaultParent();
 
-    graph2.getModel().beginUpdate();
-    try
-    {
-    Object v1 = graph2.insertVertex(parent, null, "Hello", 20, 20, 80,
-    30);
-    Object v2 = graph2.insertVertex(parent, null, "World!", 240, 150,
-    80, 30);
-    graph2.insertEdge(parent, null, "Edge", v1, v2);
-    }
-    finally
-    {
-    graph2.getModel().endUpdate();
-    }
-
-    mxGraphComponent graphComponent = new mxGraphComponent(graph2);
-    frame.getContentPane().add(graphComponent);*/
     mxGraphComponent graphComponent = new mxGraphComponent(applet.graphMx);
     frame.getContentPane().add(graphComponent);
-    frame.setTitle("Ordonnancement PERT Simulation");
+    frame.setTitle("Elementary Graph Simulation");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setPreferredSize(new Dimension(500, 500));
     frame.pack();
     frame.setVisible(true);
   }
-
-  private void adjustDisplaySettings(mxGraph jg) {
-    //jg.setPreferredSize(DEFAULT_SIZE);
-
-    Color c = DEFAULT_BG_COLOR;
-    String colorStr = null;
-
-    try {
-      //colorStr = getParameter("bgcolor");
-    } catch (Exception e) {
-    }
-
-    if (colorStr != null) {
-      c = Color.decode(colorStr);
-    }
-
-    //jg.setBackground(c);
-  }
   mxCell recentEdge = null;
+
+  public void recoverRecentEdge() {
+    if (recentEdge != null) {
+      //recentEdge.setStyle("lineColor=yellow");
+      graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "green", new Object[]{recentEdge});
+    }
+  }
 
   public void focusEdge(Vector<Node> edge) {
     graphMx.getModel().beginUpdate();
     Color color = Color.red;
     Color oldcolor = Color.GREEN;
 
-    if (recentEdge != null) {
-      recentEdge.setStyle("fillColor=yellow");
-    }
+    recoverRecentEdge();
 
     Object[] edges = graphMx.getEdges(parent);
     for (int k = 0; k < edges.length; k++) {
@@ -223,31 +217,48 @@ public class GraphDisplayMx extends JScrollPane {
 
       if (((Comparable<Node>) source.getValue()).compareTo(edge.get(0)) == 0
               && ((Comparable<Node>) dest.getValue()).compareTo(edge.get(1)) == 0) {
+        System.out.println("Focus Edge:" + edge.get(0) + "-" + edge.get(1));
         recentEdge = e;
-        recentEdge.setStyle("fillColor=green");
+        //e.setStyle("lineColor=green");
+        graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "yellow", new Object[]{e});
       }
     }
     graphMx.getModel().endUpdate();
   }
   mxCell recentCell = null;
 
+  public void recoverRecentNode() {
+    //    Color color = Color.orange;
+//    Color oldcolor = Color.GREEN;
+    if (recentCell != null) {
+      //recentCell.setStyle("fillColor=yellow");
+      //Map<String, Object> map=graphMx.getCellStyle(recentCell);
+      //map.put("fillColor", Color.orange);
+      graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "green", new Object[]{recentCell}); // Change fill color of current cell
+      //recentCell.setStyle("ROUNDED;strokeColor=red;fillColor=green;width=40;height=50");
+    }
+  }
+
   public void focusNode(Node node) {
     graphMx.getModel().beginUpdate();
     Object[] vertices = graphMx.getChildVertices(parent);
-    Color color = Color.orange;
-    Color oldcolor = Color.GREEN;
-    if (recentCell != null) {
-      recentCell.setStyle("fillColor=yellow");
-    }
+
+    recoverRecentNode();
     for (int i = 0; i < vertices.length; i++) {
 
       mxCell vertex = (mxCell) vertices[i];
       Node nodeAttached = (Node) vertex.getValue();
       if (nodeAttached != null) {
         if (nodeAttached.compareTo(node) == 0) {
-
-          vertex.setStyle("fillColor=green");
-          recentCell=vertex;
+          System.out.println("Focus Node:" + node);
+          Map<String, Object> map = graphMx.getCellStyle(vertex);
+          map.put("fillColor", Color.orange);
+          vertex.setStyle("ROUNDED;strokeColor=red;fillColor=yellow;width=40;height=50");
+          //graphMx.setCellStyle("ROUNDED;strokeColor=red;fillColor=yellow;width=40;height=50", new Object[]{vertex});
+          graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "yellow", new Object[]{vertex}); // Change fill color of current cell
+          //vertex.setStyle("fillColor=green");
+          recentCell = vertex;
+          //vertex.setVisible(false);
           break;
         }
       }

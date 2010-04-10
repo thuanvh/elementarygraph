@@ -71,11 +71,9 @@ public class MainMx extends javax.swing.JFrame {
 
     jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-    jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-
     txtLog.setColumns(20);
     txtLog.setRows(20);
-    txtLog.setText("PERT Simulation");
+    txtLog.setText("Elementary Graph Simulation");
     jScrollPane2.setViewportView(txtLog);
 
     jSplitPane2.setTopComponent(jScrollPane2);
@@ -148,29 +146,10 @@ public class MainMx extends javax.swing.JFrame {
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
-  private void displayLog(Node currentNode, FindingProcessState state, Vector<Node> relativeNode) {
-//        switch (state) {
-//            case EARLY_FINDING:
-//                txtLog.append("\nTask " + currentNode.getTaskName() + " : ");
-//                txtLog.append("EarlyStart = " + currentNode.getEarlyStart() + "\n");
-//                for(int i=0; i<relativeNode.size(); i++){
-//                    txtLog.append("["+relativeNode.get(i).getTaskName()+",EarlyStart:"+relativeNode.get(i).getEarlyStart()+
-//                            ",Duration:"+relativeNode.get(i).getDuration()+",EarlyFinish:"+relativeNode.get(i).getEarlyFinish()+"]\n");
-//                    //txtLog.append(",");
-//                }
-//                break;
-//            case LATELY_FINDING:
-//                txtLog.append("\nTask " + currentNode.getTaskName() + " : ");
-//                txtLog.append("LateStart = " + currentNode.getLateStart() + " , Duration = "+ currentNode.getDuration() + "\n");
-//                for(int i=0; i<relativeNode.size(); i++){
-//                    txtLog.append("["+relativeNode.get(i).getTaskName()+",LateStart:"+relativeNode.get(i).getLateStart()+ "]\n");
-//                    //txtLog.append(",");
-//                }
-//                break;
-//            case END_FINDING:
-//                txtLog.append("Finish" + "\n");
-//                break;
-//        }
+  private void displayLog(Vector<Node> edge) {
+    txtLog.append("From: " + edge.get(0) + " to: " + edge.get(1) + "\n");
+
+
   }
 
     private void cmdNextMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdNextMousePressed
@@ -189,10 +168,13 @@ public class MainMx extends javax.swing.JFrame {
           graphDisplay.focusNode(dest);
           graphDisplay.focusEdge(currentEdge);
           treeDisplay.addEdge(currentEdge);
+          displayLog(currentEdge);
         }
+      } else {
+        graphDisplay.recoverRecentEdge();
+        graphDisplay.recoverRecentNode();
+        treeDisplay.recoverRecentEdge();
       }
-
-
     }//GEN-LAST:event_cmdNextMousePressed
 
     private void cmdReloadMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cmdReloadMousePressed
@@ -215,6 +197,7 @@ public class MainMx extends javax.swing.JFrame {
   public boolean STATE_SEARCH;
   public static boolean STATE_SEARCH_DFS = false;
   public static boolean STATE_SEARCH_BFS = true;
+
     private void rdbDFSStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_rdbDFSStateChanged
       // TODO add your handling code here:
       //loadModel(new File(this.currentModel));
@@ -223,6 +206,7 @@ public class MainMx extends javax.swing.JFrame {
     private void rdbDFSItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_rdbDFSItemStateChanged
       // TODO add your handling code here:
       loadModel(new File(this.currentModel));
+
     }//GEN-LAST:event_rdbDFSItemStateChanged
 
   private Vector<Vector<Node>> loadGraph(File file) {
@@ -259,46 +243,58 @@ public class MainMx extends javax.swing.JFrame {
    * @param file
    */
   private void loadModel(File file) {
-    // load model to pert engine
-//        oral = new OrdonnancementAlg(file.getAbsolutePath());
-    graphAlgo = new Graph();
-    Vector<Vector<Node>> gr = graphAlgo.data;//oral.matrixNode;
-    // display model
-    graphDisplay = new GraphDisplayMx();
-    treeDisplay = new TreeDisplayMx();
-    normaliseGraph(graphAlgo.data);
-    graphDisplay.init(gr);
-    treeDisplay.init(gr);
+    try {
+      //String path = new String("/home/thuan/sandbox/elementarygraph/src/src/elementarygraph/algorithme/Node.xml");
+      //resultat = getInfos(path);
+      graphAlgo = new Graph();
 
-    this.paneGraphDisplay.removeAll();
-    this.paneGraphDisplay.add(graphDisplay.graphcom);//.add(new JScrollPane(graphDisplay.graphView));
-    this.graphView = graphDisplay.graphView;
-    this.currentStep = 0;
+      Vector<Vector<Node>> gr = GraphDataReader.getInfos(file.getPath());//(Vector<Vector<Node>>)graphAlgo.data.clone();//oral.matrixNode;
 
-    this.paneTreeDisplay.removeAll();
-    this.paneTreeDisplay.add(treeDisplay.graphcom);//add(new JScrollPane(treeDisplay.graphView));
-    this.treeView = treeDisplay.graphView;
+//      if (gr.size() > 0) {
+//        gr.remove(0);
+//      }
 
-    this.findingProcessState = FindingProcessState.EARLY_FINDING;
+      graphAlgo.data = (Vector<Vector<Node>>) gr.clone();
+      graphAlgo.data.add(0, new Vector<Node>());
+      graphAlgo.setSize(gr.size());
 
-    //graphDisplay.graphView.addGraphSelectionListener(this);
-    //treeDisplay.graphView.addGraphSelectionListener(this);
+      // display model
+      graphDisplay = new GraphDisplayMx();
+      treeDisplay = new TreeDisplayMx();
+      normaliseGraph(gr);
+      graphDisplay.init(gr);
+      treeDisplay.init(gr);
 
-    if (rdbDFS.isSelected()) {
-      this.STATE_SEARCH = this.STATE_SEARCH_DFS;
-      graphAlgo.dfs();
-    } else {
-      this.STATE_SEARCH = this.STATE_SEARCH_BFS;
-      graphAlgo.bfs();
+      this.paneGraphDisplay.removeAll();
+      this.paneGraphDisplay.add(graphDisplay.graphcom);
+      this.graphView = graphDisplay.graphView;
+      this.currentStep = 0;
+
+      this.paneTreeDisplay.removeAll();
+      this.paneTreeDisplay.add(treeDisplay.graphcom);
+      this.treeView = treeDisplay.graphView;
+
+
+
+      //graphDisplay.graphView.addGraphSelectionListener(this);
+      //treeDisplay.graphView.addGraphSelectionListener(this);
+
+      if (rdbDFS.isSelected()) {
+        this.STATE_SEARCH = this.STATE_SEARCH_DFS;
+        graphAlgo.dfs();
+      } else {
+        this.STATE_SEARCH = this.STATE_SEARCH_BFS;
+        graphAlgo.bfs();
+      }
+
+      //this.getContentPane().add(pertDisplay);
+      this.setTitle("Elementary Graph Simulation");
+      this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      this.setPreferredSize(new Dimension(500, 500));
+      //this.pack();
+      this.setVisible(true);
+    } catch (Exception e) {
     }
-
-    //this.getContentPane().add(pertDisplay);
-    this.setTitle("Ordonnancement PERT Simulation");
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    this.setPreferredSize(new Dimension(500, 500));
-    //this.pack();
-    this.setVisible(true);
-
   }
 
   private void normaliseGraph(Vector<Vector<Node>> graph) {
@@ -315,9 +311,6 @@ public class MainMx extends javax.swing.JFrame {
       }
     }
   }
-
-  
-
 //  /**
 //   * set valueChanged implement GraphSelectionListener
 //   *
@@ -336,7 +329,6 @@ public class MainMx extends javax.swing.JFrame {
   private GraphDisplayMx graphDisplay;
   private TreeDisplayMx treeDisplay;
   private int currentStep;
-  private FindingProcessState findingProcessState;
   private String currentModel;
 
   /**

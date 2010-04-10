@@ -17,7 +17,7 @@ import com.mxgraph.model.*;
 import com.mxgraph.view.*;
 import com.mxgraph.layout.*;
 import com.mxgraph.swing.mxGraphComponent;
-
+import com.mxgraph.util.mxConstants;
 import javax.swing.*;
 
 import java.awt.*;
@@ -25,7 +25,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Map;
 import java.util.Vector;
 
-public class TreeDisplayMx extends JScrollPane {
+public class TreeDisplayMx {
 
   //~ Static fields/initializers ---------------------------------------------
   private static final long serialVersionUID = 3256444702936019250L;
@@ -46,31 +46,28 @@ public class TreeDisplayMx extends JScrollPane {
 
     graphMx = new mxGraph();
     parent = graphMx.getDefaultParent();
-    //mxGraphLayout view = new mxCompactTreeLayout(model, new DefaultCellViewFactory());
+
     graphView = new mxGraphView(graphMx);
-    //graphView.setCellsEditable(false);//setEditable(false);
-    //graphView.setCellConnectable(false);
-    //graphView.setDisconnectable(false);
-    //graphView.set
 
     // Init graph model
     this.graph = graph;
     this.nodeList = new Vector<Node>();
+    graphMx.setAllowDanglingEdges(false);
+    graphMx.setCellsBendable(false);
+    graphMx.setCellsDisconnectable(false);
+    //graphMx.setCellsMovable(false);
+    graphMx.setCellsResizable(false);
+    graphMx.setCellsSelectable(false);
 
-    //JGraphFacade facade = new JGraphFacade(graphView); // Pass the facade the JGraph instance
-    //JGraphLayout layout = new JGraphTreeLayout(); // Create aninstance of the appropriate  layout
-
-    //((JGraphTreeLayout) layout).setOrientation(SwingConstants.WEST);
-
-    //layout.run(facade);
-
-    //Map nested = facade.createNestedMap(true, true); // Obtain a map of the resulting attribute changes from the facade
-    //graphView.getGraphLayoutCache().edit(nested); // Apply the results to  the actual graph
-
-    //graphView.setPreferredSize(DEFAULT_SIZE);
+    mxCompactTreeLayout treelayout = new mxCompactTreeLayout(graphMx);
+    treelayout.setHorizontal(false);
+    treelayout.setMoveTree(true);
+    treelayout.execute(parent);
     graphcom = new mxGraphComponent(graphMx);
-    this.add(graphcom);
-
+    graphcom.setCenterPage(false);
+    graphcom.setAutoExtend(false);
+    graphcom.setDragEnabled(false);
+    graphcom.setBackground(Color.GRAY);
   }
 
   public static void main(String[] args) {
@@ -108,7 +105,7 @@ public class TreeDisplayMx extends JScrollPane {
     //pane.add(applet.graphView);
     //pane.setSize(500,500);
     frame.getContentPane().add(pane);
-    frame.setTitle("Ordonnancement PERT Simulation");
+    frame.setTitle(" Simulation");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setPreferredSize(new Dimension(500, 500));
     frame.pack();
@@ -117,6 +114,16 @@ public class TreeDisplayMx extends JScrollPane {
   mxCell recentNode = null;
   mxCell recentEdge = null;
   mxCell rootNode = null;
+
+  public void recoverRecentEdge() {
+    if (recentNode != null && recentEdge != null) {
+      //recentNode.setStyle("fillColor=yellow");
+      graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "green", new Object[]{recentNode});
+      //recentEdge.setStyle("lineColor=yellow");
+      graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "green", new Object[]{recentEdge});
+    }
+
+  }
 
   public void addEdge(Vector<Node> edge) {
     graphMx.getModel().beginUpdate();
@@ -129,22 +136,19 @@ public class TreeDisplayMx extends JScrollPane {
       Node dest = edge.get(1);
       if (vertices.length == 0) {
         mxCell cell = (mxCell) graphMx.insertVertex(parent, source.getTitle(), source, 50, 20, 80, 30);
-        cell.setStyle("ROUNDED;strokeColor=red;fillColor=green;width=40;height=50");
+        //cell.setStyle("ROUNDED;strokeColor=red;fillColor=green;width=40;height=50");
         //mxCell cell = new mxCell();
         //cell.setVertex(true);//createNode(source);
         //graphMx.addCell(cell, this);
-
+        graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "green", new Object[]{cell});
         //graphView.getGraphLayoutCache().insert(cell);
         rootNode = cell;
       }
-      if (recentNode != null && recentEdge != null) {
 
-        recentNode.setStyle("fillColor=yellow");
-        recentEdge.setStyle("fillColor=yellow");
-      }
+      recoverRecentEdge();
 
       vertices = graphMx.getChildVertices(parent);
-      System.out.println("size of vertices:" + vertices.length);
+      //System.out.println("size of vertices:" + vertices.length);
       for (int i = 0; i < vertices.length; i++) {
         mxCell vertex = (mxCell) vertices[i];
         Node nodeAttached = (Node) vertex.getValue();
@@ -152,13 +156,15 @@ public class TreeDisplayMx extends JScrollPane {
           if (nodeAttached.compareTo(source) == 0) {
 
             mxCell destCell = (mxCell) graphMx.insertVertex(parent, dest.getTitle(), dest, 50, 20, 80, 30);
-            destCell.setStyle("ROUNDED;strokeColor=red;fillColor=green;width=40;height=50");
+            //destCell.setStyle("ROUNDED;strokeColor=red;fillColor=green;width=40;height=50");
 
 
             mxCell newedge = (mxCell) graphMx.insertEdge(parent, null, "", vertex, destCell);
+            //destCell.setStyle("lineColor=red");
 
-            
-
+            graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "yellow", new Object[]{destCell});
+            //recentEdge.setStyle("lineColor=yellow");
+            graphMx.setCellStyles(mxConstants.STYLE_FILLCOLOR, "yellow", new Object[]{newedge});
             recentEdge = newedge;
             recentNode = destCell;
             //GraphConstants.set
@@ -168,7 +174,11 @@ public class TreeDisplayMx extends JScrollPane {
       }
 
       mxCompactTreeLayout treelayout = new mxCompactTreeLayout(graphMx);
+      treelayout.setHorizontal(true);
+      //treelayout.setInvert(false);
+      treelayout.setMoveTree(true);
       treelayout.execute(parent);
+
     } finally {
       graphMx.getModel().endUpdate();
     }

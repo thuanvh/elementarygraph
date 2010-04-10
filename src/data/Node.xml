@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<graph>
+	<node id="1" name="A" trace="0">
+		<child>2</child>
+		<child>3</child>
+	</node>
+	<node id="2" name="B" trace="0">
+		<child>1</child>
+		<child>3</child>
+                <child>4</child>
+                <child>5</child>
+	</node>
+	<node id="3" name="C" trace="0">
+		<child>1</child>
+		<child>2</child>
+                <child>5</child>
+	</node>
+        <node id="4" name="D" trace="0">
+		<child>2</child>
+		<child>5</child>
+                <child>6</child>
+	</node>
+        <node  name="E" id="5" trace="0">
+		<child>2</child>
+		<child>3</child>
+                <!--<child>4</child>-->
+                <child>6</child>
+	</node>
+        <node id="6" name="F" trace="0">
+		<child>4</child>
+		<child>5</child>
+	</node>
+</graph>
